@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23F5D547'/%3E%3Cstop offset='50%25' stop-color='%23D4B83A'/%3E%3Cstop offset='100%25' stop-color='%234A7C4E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g)' rx='16' width='100' height='100'/%3E%3Cpath d='M30 25h25c11 0 20 9 20 20s-9 20-20 20h-5l20 10H50L30 65V25zm10 10v20h15c5.5 0 10-4.5 10-10s-4.5-10-10-10H40z' fill='white'/%3E%3C/svg%3E" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Labs: AI Creative Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* Recipe Labs Brand Colors - Fresh Lemonade Palette */
+        --color-bg: #0f1410;
+        --color-bg-secondary: #141a16;
+        --color-bg-tertiary: #1a211c;
+        --color-text: #ffffff;
+        --color-text-muted: #a8b4a4;
+        --color-text-dim: #5a685a;
+
+        /* Brand Palette - Fresh Lemonade */
+        --color-lemon: #F5D547;
+        --color-lemon-light: #F7E07A;
+        --color-lemon-dark: #D4B83A;
+        --color-forest: #4A7C4E;
+        --color-mint: #9AA590;
+        --color-sage: #6B8E6B;
+
+        /* Primary Accent */
+        --color-accent: #F5D547;
+        --color-accent-secondary: #D4B83A;
+        --color-accent-tertiary: #4A7C4E;
+        --color-accent-hover: #F7E07A;
+        --color-accent-glow: rgba(245, 213, 71, 0.4);
+        --gradient-brand: linear-gradient(135deg, #F5D547 0%, #D4B83A 50%, #4A7C4E 100%);
+        --gradient-brand-reverse: linear-gradient(135deg, #4A7C4E 0%, #D4B83A 50%, #F5D547 100%);
+        --gradient-spectrum: linear-gradient(90deg, #F5D547, #D4B83A, #4A7C4E, #6B8E6B, #0f1410);
+
+        --color-border: #1f2a1f;
+        --color-border-light: #2d3a2d;
+
+        /* Typography */
+        --font-display: 'Orbitron', sans-serif;
+        --font-body: 'Montserrat', sans-serif;
+        --font-tech: 'Rajdhani', sans-serif;
+
+        /* Transitions */
+        --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      html {
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        font-family: var(--font-body);
+        background-color: var(--color-bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        touch-action: manipulation;
+      }
+      button, [role="button"] {
+          transition: transform 0.1s ease-out;
+      }
+      button:active, [role="button"]:active {
+          transform: scale(0.97);
+      }
+      .font-display {
+        font-family: var(--font-display);
+      }
+      .font-body {
+        font-family: var(--font-body);
+      }
+      .font-tech {
+        font-family: var(--font-tech);
+      }
+      .font-orbitron {
+        font-family: 'Orbitron', sans-serif;
+      }
+      .line-clamp-2 {
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      ::-webkit-scrollbar {
+        height: 4px;
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-border-light);
+        border-radius: 2px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-lemon);
+      }
+      .scroll-snap-x-mandatory {
+        scroll-snap-type: x mandatory;
+      }
+      .scroll-snap-align-start {
+        scroll-snap-align: start;
+      }
+
+      /* Tech Overlay Effects */
+      .tech-grid-bg {
+        background-image:
+          linear-gradient(rgba(245, 213, 71, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 213, 71, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+      }
+
+      /* Brand Spectrum Bar */
+      .brand-spectrum {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-spectrum);
+        z-index: 9999;
+      }
+
+      /* Gradient text helper */
+      .gradient-text {
+        background: var(--gradient-brand);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* Glow effects */
+      .glow-lemon {
+        box-shadow: 0 0 30px var(--color-accent-glow);
+      }
+      .glow-lemon-sm {
+        box-shadow: 0 0 15px var(--color-accent-glow);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Montserrat', 'sans-serif'],
+              display: ['Orbitron', 'sans-serif'],
+              tech: ['Rajdhani', 'sans-serif'],
+              orbitron: ['Orbitron', 'sans-serif'],
+            },
+            keyframes: {
+              'shimmer': {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' },
+              },
+              'fadeIn': {
+                'from': { opacity: '0' },
+                'to': { opacity: '1' },
+              },
+              'scaleIn': {
+                'from': { transform: 'scale(0.8)', opacity: '0' },
+                'to': { transform: 'scale(1)', opacity: '1' },
+              },
+              'slideInUp': {
+                'from': { transform: 'translateY(20px)', opacity: '0' },
+                'to': { transform: 'translateY(0)', opacity: '1' },
+              },
+              'pulse': {
+                '0%, 100%': { opacity: 0.7 },
+                '50%': { opacity: 1 },
+              },
+              'slideInRight': {
+                'from': { transform: 'translateX(30px)', opacity: '0' },
+                'to': { transform: 'translateX(0)', opacity: '1' },
+              },
+              'slideOutLeft': {
+                'from': { transform: 'translateX(0)', opacity: '1' },
+                'to': { transform: 'translateX(-30px)', opacity: '0' },
+              },
+              'stagger-in': {
+                'from': { transform: 'translateY(20px)', opacity: 0 },
+                'to': { transform: 'translateY(0)', opacity: 1 },
+              },
+            },
+            animation: {
+              'shimmer': 'shimmer 2s linear infinite',
+              'fadeIn': 'fadeIn 0.5s ease-out',
+              'scaleIn': 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              'slideInUp': 'slideInUp 0.5s ease-out',
+              'pulse': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'slideInRight': 'slideInRight 0.4s ease-out forwards',
+              'slideOutLeft': 'slideOutLeft 0.4s ease-in forwards',
+              'stagger-in': 'stagger-in 0.5s ease-out backwards',
+            },
+            colors: {
+              /* Recipe Labs Fresh Lemonade Palette */
+              'brand-bg': '#0f1410',
+              'brand-bg-secondary': '#141a16',
+              'brand-bg-tertiary': '#1a211c',
+              'brand-lemon': '#F5D547',
+              'brand-lemon-light': '#F7E07A',
+              'brand-lemon-dark': '#D4B83A',
+              'brand-forest': '#4A7C4E',
+              'brand-mint': '#9AA590',
+              'brand-sage': '#6B8E6B',
+              'brand-text-muted': '#a8b4a4',
+              'brand-text-dim': '#5a685a',
+              'brand-border': '#1f2a1f',
+              'brand-border-light': '#2d3a2d',
+            }
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "@google/genai": "https://esm.run/@google/genai"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
