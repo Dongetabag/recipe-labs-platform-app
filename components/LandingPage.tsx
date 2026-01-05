@@ -42,9 +42,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
         </p>
 
         <p className="text-lg md:text-xl text-brand-text-muted mb-10 max-w-2xl mx-auto leading-relaxed">
-          An AI-powered creative suite for agencies.
-          <br />
-          <span className="text-white/90">Ideate, create, and deliver — faster.</span>
+          An AI-powered creative suite for agencies. Ideate, create, and deliver — faster.
         </p>
 
         {/* CTA Button */}
