@@ -1,0 +1,58 @@
+Deploy the Recipe Labs V2 Platform to the VPS. I have the built application ready to deploy.
+
+Here's what needs to be done:
+
+1. **Create deployment directory**:
+```bash
+mkdir -p /var/www/recipe-labs-platform-v2
+chmod 755 /var/www/recipe-labs-platform-v2
+```
+
+2. **Copy the built files** (the dist folder from the local build):
+   - The dist folder contains: index.html, assets/ folder with JS and CSS
+   - Copy all files from dist/ to /var/www/recipe-labs-platform-v2/
+
+3. **Configure Nginx** to serve the application on port 3002:
+```nginx
+server {
+    listen 3002;
+    server_name 72.61.72.94;
+    root /var/www/recipe-labs-platform-v2;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+4. **Enable the site**:
+```bash
+ln -sf /etc/nginx/sites-available/recipe-labs-platform-v2 /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
+```
+
+5. **Test the deployment**:
+```bash
+curl -I http://localhost:3002
+```
+
+6. **Verify Agent API is accessible**:
+```bash
+curl http://72.61.72.94:5000/health
+```
+
+The platform should be accessible at: http://72.61.72.94:3002
+
+The Agent Chat Widget will automatically connect to the Recipe Labs Agent API at http://72.61.72.94:5000.
+
+Show me the deployment steps and confirm when it's live.
+
+

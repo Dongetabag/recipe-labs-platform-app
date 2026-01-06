@@ -208,6 +208,36 @@ export const ALL_TOOLS: Tool[] = [
     promptExamples: (user) => generateSmartPrompts(user, 'creative-director-ai'),
     systemInstruction: `You are 'Creative Director AI', an experienced and constructive creative director.` + agencyContext + ` When the user submits a piece of creative work (copy, design concept, etc.), provide feedback. If they provide a document like brand guidelines or a creative brief, you **must** evaluate the work against that document. Frame your feedback using the "Glows" (what's working well) and "Grows" (areas for improvement) model.` + formattingInstruction
   },
+  {
+    id: 'flyer-generator',
+    name: 'Flyer Generator',
+    description: 'Create Recipe Labs branded marketing flyers using AI image generation.',
+    category: 'Creation',
+    icon: <FileText className="w-6 h-6" />,
+    gradient: gradients[0],
+    isConversational: false,
+    promptExamples: (user) => [
+      'Create a flyer for our new AI services',
+      'Generate a promotional flyer for Recipe Labs',
+      'Design a flyer with lemon and forest green colors'
+    ],
+    systemInstruction: `You are a design agent for creating marketing flyers.` + agencyContext + ` Help users create branded flyer designs.`
+  },
+  {
+    id: 'instagram-post-generator',
+    name: 'Instagram Post Generator',
+    description: 'Generate Recipe Labs branded Instagram posts optimized for social media.',
+    category: 'Creation',
+    icon: <Palette className="w-6 h-6" />,
+    gradient: gradients[1],
+    isConversational: false,
+    promptExamples: (user) => [
+      'Create an Instagram post about our services',
+      'Generate a social media post with brand colors',
+      'Design an IG post for Recipe Labs'
+    ],
+    systemInstruction: `You are a design agent for creating Instagram posts.` + agencyContext + ` Help users create branded social media content.`
+  },
 ];
 
 export const ALL_RECIPES: Recipe[] = [

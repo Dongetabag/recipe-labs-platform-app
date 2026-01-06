@@ -17,6 +17,7 @@ interface DashboardProps {
   onOpenProfile: () => void;
   onOpenSettings: () => void;
   onCompleteOnboarding: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -28,6 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onOpenProfile,
   onOpenSettings,
   onCompleteOnboarding,
+  onNavigate,
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<'All' | 'Strategy' | 'Creation' | 'Client' | 'Productivity'>('All');
@@ -116,6 +118,31 @@ const Dashboard: React.FC<DashboardProps> = ({
                     />
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4">
+                    {onNavigate && (
+                      <>
+                        <button 
+                          onClick={() => onNavigate('design')} 
+                          className="px-4 py-2 bg-brand-bg-tertiary border border-brand-border rounded-lg text-white hover:bg-brand-lemon/20 hover:text-brand-lemon transition-colors font-tech text-sm"
+                          title="Design Agents"
+                        >
+                          Design
+                        </button>
+                        <button 
+                          onClick={() => onNavigate('data')} 
+                          className="px-4 py-2 bg-brand-bg-tertiary border border-brand-border rounded-lg text-white hover:bg-brand-lemon/20 hover:text-brand-lemon transition-colors font-tech text-sm"
+                          title="Database Management"
+                        >
+                          Database
+                        </button>
+                        <button 
+                          onClick={() => onNavigate('media')} 
+                          className="px-4 py-2 bg-brand-bg-tertiary border border-brand-border rounded-lg text-white hover:bg-brand-lemon/20 hover:text-brand-lemon transition-colors font-tech text-sm"
+                          title="Media Agent"
+                        >
+                          Media Engine
+                        </button>
+                      </>
+                    )}
                     <div className="text-right hidden sm:block">
                         <p className="font-bold text-white">{user.name}</p>
                         <p className="text-xs text-brand-text-muted font-tech">{user.role}</p>

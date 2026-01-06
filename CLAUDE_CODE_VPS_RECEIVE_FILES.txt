@@ -1,0 +1,27 @@
+I need to receive the Recipe Labs V2 Platform dist folder on the VPS. The files are on my local machine but I need them on the VPS.
+
+**Local machine location**: `/Users/simeonreid/AiSim Virtual Workspace/recipe-labs platform app/dist/`
+
+**VPS destination**: `/var/www/recipe-labs-platform-v2/`
+
+**Files needed**:
+1. `index.html` (8.8 KB)
+2. `assets/index-DJQ8ZZcd.js` (main JavaScript bundle, ~570 KB)
+3. `assets/index-tn0RQdqM.css` (CSS file, small)
+
+Since SCP requires SSH keys, help me set up the VPS directory and provide instructions for one of these options:
+
+**Option 1**: Create the files directly on VPS (I can provide the file contents)
+**Option 2**: Set up a temporary HTTP server on local machine to download from
+**Option 3**: Use a different transfer method
+
+First, create the directory structure on VPS:
+
+```bash
+mkdir -p /var/www/recipe-labs-platform-v2/assets
+chmod -R 755 /var/www/recipe-labs-platform-v2
+```
+
+Then let me know which option you prefer, and I'll provide the file contents or download commands.
+
+

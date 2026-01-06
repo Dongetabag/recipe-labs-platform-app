@@ -7,10 +7,15 @@ import IntakeModal, { IntakeData } from './components/IntakeModal.tsx';
 import ProfileModal from './components/ProfileModal.tsx';
 import SettingsModal from './components/SettingsModal.tsx';
 import LevelUpModal from './components/LevelUpModal.tsx';
+import AgentChatWidget from './src/components/Agent/AgentChatWidget.tsx';
+import { DatabasePage } from './src/components/Data/DatabasePage.tsx';
+import { DesignAgentToolPage } from './src/components/Design/DesignAgentToolPage.tsx';
+import MediaAgentPage from './src/components/Media/MediaAgentPage.tsx';
 import { UserProfile, Tool, ChatMessage, Recipe } from './types.ts';
 import { ALL_TOOLS } from './constants.tsx';
+import { usePlatformStore } from './src/store/platformStore';
 
-type Page = 'landing' | 'dashboard' | 'tool' | 'recipe';
+type Page = 'landing' | 'dashboard' | 'tool' | 'recipe' | 'workflows' | 'data' | 'agent' | 'design' | 'media';
 
 const THEME_COLORS: { [key: string]: string } = {
   violet: '#6A44FF',
@@ -29,6 +34,9 @@ const App: React.FC = () => {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [chatHistories, setChatHistories] = useState<{ [key: string]: ChatMessage[] }>({});
   const [toolStats, setToolStats] = useState<{ [key: string]: { usage: number } }>({});
+  
+  // V2 Platform Store
+  const platformState = usePlatformStore();
   
   // Modal states
   const [showIntakeModal, setShowIntakeModal] = useState(false);
@@ -90,6 +98,13 @@ const App: React.FC = () => {
   
   const handleNavigate = (page: Page) => {
     if (page !== currentPage) {
+      // Handle design page - automatically select first design tool
+      if (page === 'design' && userProfile) {
+        const designTools = ALL_TOOLS.filter(t => t.id === 'flyer-generator' || t.id === 'instagram-post-generator');
+        if (designTools.length > 0 && !selectedTool) {
+          setSelectedTool(designTools[0]);
+        }
+      }
       setNextPage(page);
       setAnimationState('out');
     }
@@ -97,6 +112,13 @@ const App: React.FC = () => {
 
   const handleAnimationEnd = () => {
     if (animationState === 'out' && nextPage) {
+      // Handle design page - automatically select first design tool if none selected
+      if (nextPage === 'design' && userProfile && !selectedTool) {
+        const designTools = ALL_TOOLS.filter(t => t.id === 'flyer-generator' || t.id === 'instagram-post-generator');
+        if (designTools.length > 0) {
+          setSelectedTool(designTools[0]);
+        }
+      }
       setCurrentPage(nextPage);
       setAnimationState('in');
       setNextPage(null);
@@ -222,14 +244,25 @@ const App: React.FC = () => {
         ) : null;
       case 'tool':
         return selectedTool ? (
-          <ToolPage
-            user={userProfile}
-            selectedTool={selectedTool}
-            chatHistories={chatHistories}
-            onNavigate={() => handleNavigate('dashboard')}
-            onUseTool={handleUseTool}
-            onSetSatisfaction={handleSetSatisfaction}
-          />
+          (selectedTool.id === 'flyer-generator' || selectedTool.id === 'instagram-post-generator') ? (
+            <DesignAgentToolPage
+              user={userProfile}
+              selectedTool={selectedTool}
+              chatHistories={chatHistories}
+              onNavigate={() => handleNavigate('dashboard')}
+              onUseTool={handleUseTool}
+              onSetSatisfaction={handleSetSatisfaction}
+            />
+          ) : (
+            <ToolPage
+              user={userProfile}
+              selectedTool={selectedTool}
+              chatHistories={chatHistories}
+              onNavigate={() => handleNavigate('dashboard')}
+              onUseTool={handleUseTool}
+              onSetSatisfaction={handleSetSatisfaction}
+            />
+          )
         ) : null;
       case 'dashboard':
         return userProfile ? (
@@ -242,8 +275,49 @@ const App: React.FC = () => {
             onOpenProfile={() => setShowProfileModal(true)}
             onOpenSettings={() => setShowSettingsModal(true)}
             onCompleteOnboarding={handleCompleteOnboarding}
+            onNavigate={handleNavigate}
           />
         ) : null;
+      case 'data':
+        return userProfile ? <DatabasePage onNavigate={handleNavigate} /> : <LandingPage onLogin={handleLogin} />;
+      case 'media':
+        return userProfile ? <MediaAgentPage onNavigate={handleNavigate} /> : <LandingPage onLogin={handleLogin} />;
+      case 'design':
+        // Navigate to design tools - show flyer and instagram generators
+        if (!userProfile) {
+          return <LandingPage onLogin={handleLogin} />;
+        }
+        
+        const designTools = ALL_TOOLS.filter(t => t.id === 'flyer-generator' || t.id === 'instagram-post-generator');
+        const activeDesignTool = selectedTool && (selectedTool.id === 'flyer-generator' || selectedTool.id === 'instagram-post-generator') 
+          ? selectedTool 
+          : (designTools[0] || null);
+        
+        if (activeDesignTool) {
+          return (
+            <DesignAgentToolPage
+              user={userProfile}
+              selectedTool={activeDesignTool}
+              chatHistories={chatHistories}
+              onNavigate={() => handleNavigate('dashboard')}
+              onUseTool={handleUseTool}
+              onSetSatisfaction={handleSetSatisfaction}
+            />
+          );
+        }
+        
+        // Fallback: if no design tool found, go back to dashboard
+        return <Dashboard
+          user={userProfile}
+          toolStats={toolStats}
+          onSelectTool={handleSelectTool}
+          onSelectRecipe={handleSelectRecipe}
+          onLogout={handleLogout}
+          onOpenProfile={() => setShowProfileModal(true)}
+          onOpenSettings={() => setShowSettingsModal(true)}
+          onCompleteOnboarding={handleCompleteOnboarding}
+          onNavigate={handleNavigate}
+        />;
       case 'landing':
       default:
         return <LandingPage onLogin={handleLogin} />;
@@ -252,11 +326,30 @@ const App: React.FC = () => {
   
   const animationClass = animationState === 'in' ? 'animate-slideInRight' : 'animate-slideOutLeft';
 
+  // Build current state for agent context
+  const currentState = {
+    currentPage,
+    selectedTool: selectedTool?.id || null,
+    selectedData: null,
+    activeWorkflows: platformState.activeWorkflows,
+    activeBaserowRecords: platformState.activeBaserowRecords,
+  };
+
   return (
     <>
       <div onAnimationEnd={handleAnimationEnd} className={animationClass}>
         {renderPage()}
       </div>
+      
+      {/* V2: Agent Chat Widget - Always accessible */}
+      {userProfile && (
+        <AgentChatWidget
+          userProfile={userProfile}
+          currentState={currentState}
+          position="bottom-right"
+        />
+      )}
+      
       <IntakeModal
         show={showIntakeModal}
         onClose={() => setShowIntakeModal(false)}

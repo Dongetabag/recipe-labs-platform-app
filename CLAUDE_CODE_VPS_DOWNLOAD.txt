@@ -1,0 +1,38 @@
+The local HTTP server is running on port 8000. Download the Recipe Labs V2 Platform files from it.
+
+**Local server IP**: 192.168.4.233:8000
+
+Run these commands to download and set up the files:
+
+```bash
+# Create directory structure
+mkdir -p /var/www/recipe-labs-platform-v2/assets
+cd /var/www/recipe-labs-platform-v2
+
+# Download files from local server
+curl http://192.168.4.233:8000/index.html -o index.html
+curl http://192.168.4.233:8000/assets/index-DJQ8ZZcd.js -o assets/index-DJQ8ZZcd.js
+curl http://192.168.4.233:8000/assets/index-tn0RQdqM.css -o assets/index-tn0RQdqM.css
+
+# Set permissions
+chmod -R 755 /var/www/recipe-labs-platform-v2
+
+# Verify files downloaded correctly
+echo "📁 Files downloaded:"
+ls -lh /var/www/recipe-labs-platform-v2/
+ls -lh /var/www/recipe-labs-platform-v2/assets/
+
+# Verify index.html content
+echo ""
+echo "📄 First 10 lines of index.html:"
+head -10 /var/www/recipe-labs-platform-v2/index.html
+```
+
+If the download works, the files should be:
+- index.html (~8.8 KB)
+- assets/index-DJQ8ZZcd.js (~560 KB)
+- assets/index-tn0RQdqM.css (empty but needed)
+
+After files are downloaded, configure Nginx and test the deployment.
+
+
