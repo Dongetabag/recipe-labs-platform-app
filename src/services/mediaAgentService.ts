@@ -361,6 +361,106 @@ export async function generateProductImage(
   return generateImageWithCanvas(base64Image, product, designSpec, aiDesignInstructions, referenceFlyerUrl);
 }
 
+// Recipe Labs Brand Constants
+const RECIPE_LABS_BRAND = {
+  colors: {
+    lemon: '#F5D547',
+    lemonLight: '#F7E07A',
+    lemonDark: '#D4B83A',
+    forest: '#4A7C4E',
+    mint: '#9AA590',
+    sage: '#6B8E6B',
+    bgDark: '#0f1410',
+    bgSecondary: '#141a16',
+    textMuted: '#a8b4a4',
+  },
+  fonts: {
+    display: 'Orbitron',
+    body: 'Montserrat',
+    tech: 'Rajdhani'
+  }
+};
+
+// Draw Recipe Labs Logo on Canvas
+function drawRecipeLabsLogo(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+  const scale = size / 100;
+  ctx.save();
+  ctx.translate(x - size/2, y - size/2);
+  ctx.scale(scale, scale);
+
+  // Create gradient for logo background
+  const gradient = ctx.createLinearGradient(0, 0, 100, 100);
+  gradient.addColorStop(0, RECIPE_LABS_BRAND.colors.lemon);
+  gradient.addColorStop(0.5, RECIPE_LABS_BRAND.colors.lemonDark);
+  gradient.addColorStop(1, RECIPE_LABS_BRAND.colors.forest);
+
+  // Draw rounded rectangle background
+  ctx.beginPath();
+  ctx.roundRect(0, 0, 100, 100, 16);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Draw "R" letter
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(30, 25);
+  ctx.lineTo(55, 25);
+  ctx.bezierCurveTo(66, 25, 75, 34, 75, 45);
+  ctx.bezierCurveTo(75, 56, 66, 65, 55, 65);
+  ctx.lineTo(50, 65);
+  ctx.lineTo(70, 75);
+  ctx.lineTo(50, 75);
+  ctx.lineTo(30, 65);
+  ctx.closePath();
+  ctx.fill();
+
+  // Inner cutout for R
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.moveTo(40, 35);
+  ctx.lineTo(40, 55);
+  ctx.lineTo(55, 55);
+  ctx.bezierCurveTo(60.5, 55, 65, 50.5, 65, 45);
+  ctx.bezierCurveTo(65, 39.5, 60.5, 35, 55, 35);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+// Draw Brand Spectrum Bar
+function drawSpectrumBar(ctx: CanvasRenderingContext2D, y: number, width: number, height: number) {
+  const gradient = ctx.createLinearGradient(0, y, width, y);
+  gradient.addColorStop(0, RECIPE_LABS_BRAND.colors.lemon);
+  gradient.addColorStop(0.25, RECIPE_LABS_BRAND.colors.lemonDark);
+  gradient.addColorStop(0.5, RECIPE_LABS_BRAND.colors.forest);
+  gradient.addColorStop(0.75, RECIPE_LABS_BRAND.colors.sage);
+  gradient.addColorStop(1, RECIPE_LABS_BRAND.colors.bgDark);
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, y, width, height);
+}
+
+// Draw subtle tech grid overlay
+function drawTechGrid(ctx: CanvasRenderingContext2D, width: number, height: number, opacity: number = 0.03) {
+  ctx.strokeStyle = `rgba(245, 213, 71, ${opacity})`;
+  ctx.lineWidth = 1;
+
+  const gridSize = 50;
+  for (let x = 0; x <= width; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= height; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+}
+
 function generateImageWithCanvas(
   sourceImageBase64: string,
   product: MediaProductType,
@@ -378,7 +478,7 @@ function generateImageWithCanvas(
       // Calculate dimensions based on aspect ratio
       let width: number, height: number;
       const aspectRatio = product.aspectRatio;
-      
+
       if (aspectRatio === '9:16') {
         width = 1080;
         height = 1920;
@@ -395,29 +495,29 @@ function generateImageWithCanvas(
         width = 1080;
         height = 1080;
       }
-      
+
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
-      
+
       if (!ctx) {
         reject(new Error('Could not get canvas context'));
         return;
       }
-      
+
       // Load source image
       const sourceImg = new Image();
       sourceImg.onload = () => {
         // Draw source image as background (cover)
         const sourceAspect = sourceImg.width / sourceImg.height;
         const canvasAspect = width / height;
-        
+
         let drawWidth = width;
         let drawHeight = height;
         let drawX = 0;
         let drawY = 0;
-        
+
         if (sourceAspect > canvasAspect) {
           drawHeight = width / sourceAspect;
           drawY = (height - drawHeight) / 2;
@@ -425,74 +525,147 @@ function generateImageWithCanvas(
           drawWidth = height * sourceAspect;
           drawX = (width - drawWidth) / 2;
         }
-        
-        ctx.drawImage(sourceImg, drawX, drawY, drawWidth, drawHeight);
-        
-        // Add overlay gradient for text readability (adjustable opacity)
-        const overlayOpacity = editParams?.overlayOpacity === 'darker' ? 0.6 : 
-                               editParams?.overlayOpacity === 'lighter' ? 0.2 : 0.4;
-        const overlayGradient = ctx.createLinearGradient(0, 0, 0, height);
-        overlayGradient.addColorStop(0, `rgba(15, 20, 16, ${overlayOpacity * 0.75})`);
-        overlayGradient.addColorStop(0.5, `rgba(15, 20, 16, ${overlayOpacity * 0.25})`);
-        overlayGradient.addColorStop(1, `rgba(15, 20, 16, ${overlayOpacity * 1.25})`);
-        ctx.fillStyle = overlayGradient;
+
+        // Fill background with brand dark color first
+        ctx.fillStyle = RECIPE_LABS_BRAND.colors.bgDark;
         ctx.fillRect(0, 0, width, height);
-        
-        // Draw Recipe Labs branding
-        const padding = 60;
-        const brandColors = {
-          lemon: '#F5D547',
-          forest: '#4A7C4E',
-          lemonLight: '#F7E07A'
-        };
-        
+
+        // Draw the source image
+        ctx.drawImage(sourceImg, drawX, drawY, drawWidth, drawHeight);
+
+        // Add subtle tech grid overlay
+        drawTechGrid(ctx, width, height, 0.02);
+
+        // Add overlay gradient for text readability (adjustable opacity)
+        const overlayOpacity = editParams?.overlayOpacity === 'darker' ? 0.7 :
+                               editParams?.overlayOpacity === 'lighter' ? 0.25 : 0.45;
+
+        // Top gradient (for header area)
+        const topGradient = ctx.createLinearGradient(0, 0, 0, height * 0.4);
+        topGradient.addColorStop(0, `rgba(15, 20, 16, ${overlayOpacity * 0.9})`);
+        topGradient.addColorStop(1, 'rgba(15, 20, 16, 0)');
+        ctx.fillStyle = topGradient;
+        ctx.fillRect(0, 0, width, height * 0.4);
+
+        // Bottom gradient (for footer area)
+        const bottomGradient = ctx.createLinearGradient(0, height * 0.6, 0, height);
+        bottomGradient.addColorStop(0, 'rgba(15, 20, 16, 0)');
+        bottomGradient.addColorStop(1, `rgba(15, 20, 16, ${overlayOpacity * 1.1})`);
+        ctx.fillStyle = bottomGradient;
+        ctx.fillRect(0, height * 0.6, width, height * 0.4);
+
+        // Brand elements
+        const padding = width * 0.055;
+        const brand = RECIPE_LABS_BRAND.colors;
+
+        // === TOP SECTION: Logo + Brand Badge ===
+        const logoSize = width * 0.08;
+        drawRecipeLabsLogo(ctx, padding + logoSize/2, padding + logoSize/2, logoSize);
+
+        // Brand badge next to logo
+        ctx.fillStyle = brand.lemon;
+        ctx.font = `bold ${width * 0.022}px ${RECIPE_LABS_BRAND.fonts.display}, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('RECIPE LABS', padding + logoSize + 15, padding + logoSize * 0.35);
+
+        ctx.fillStyle = brand.textMuted;
+        ctx.font = `600 ${width * 0.014}px ${RECIPE_LABS_BRAND.fonts.tech}, sans-serif`;
+        ctx.fillText('AI CREATIVE SUITE', padding + logoSize + 15, padding + logoSize * 0.65);
+
+        // === CENTER SECTION: Main Content ===
         // Determine text position based on edit params
         let textY: number;
         if (editParams?.textPosition === 'top') {
-          textY = padding;
+          textY = height * 0.25;
         } else if (editParams?.textPosition === 'bottom') {
-          textY = height - padding - (width * 0.15);
+          textY = height * 0.65;
         } else {
-          textY = height / 2 - (width * 0.08); // Center (default)
+          textY = height * 0.45; // Center (default)
         }
-        
+
         // Determine text size based on edit params
-        const baseFontSize = width * 0.08;
-        const fontSize = editParams?.textSize === 'larger' ? baseFontSize * 1.3 :
-                        editParams?.textSize === 'smaller' ? baseFontSize * 0.7 :
+        const baseFontSize = width * 0.085;
+        const fontSize = editParams?.textSize === 'larger' ? baseFontSize * 1.25 :
+                        editParams?.textSize === 'smaller' ? baseFontSize * 0.75 :
                         baseFontSize;
-        
-        // Main brand text
-        ctx.fillStyle = brandColors.lemon;
-        ctx.font = `bold ${fontSize}px ${designSpec.fontFamily || 'Orbitron'}, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        
+
+        // Main brand text with shadow for depth
         const brandText = designSpec.eventTitle || 'Recipe Labs';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Text shadow
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.font = `800 ${fontSize}px ${designSpec.fontFamily || RECIPE_LABS_BRAND.fonts.display}, sans-serif`;
+        ctx.fillText(brandText, width / 2 + 4, textY + 4);
+
+        // Main text with gradient effect (simulated)
+        ctx.fillStyle = brand.lemon;
         ctx.fillText(brandText, width / 2, textY);
-        
-        // Optional date
-        if (designSpec.includeDate && designSpec.date) {
-          ctx.fillStyle = brandColors.lemonLight;
-          const dateFontSize = fontSize * 0.4;
-          ctx.font = `${dateFontSize}px Montserrat, sans-serif`;
-          const dateText = typeof designSpec.date === 'string' ? designSpec.date.toUpperCase() : String(designSpec.date).toUpperCase();
-          ctx.fillText(dateText, width / 2, textY + fontSize * 1.5);
+
+        // Tagline/Vibe text
+        if (designSpec.vibe) {
+          ctx.fillStyle = brand.lemonLight;
+          ctx.font = `600 ${fontSize * 0.25}px ${RECIPE_LABS_BRAND.fonts.body}, sans-serif`;
+          ctx.fillText(designSpec.vibe.toUpperCase(), width / 2, textY + fontSize * 0.7);
         }
-        
-        // URL at bottom (always at bottom)
-        ctx.fillStyle = brandColors.lemon;
-        ctx.font = `bold ${width * 0.025}px Montserrat, sans-serif`;
-        ctx.fillText('RecipeLabs.ai', width / 2, height - padding - width * 0.04);
-        
+
+        // Optional date badge
+        if (designSpec.includeDate && designSpec.date) {
+          const dateText = typeof designSpec.date === 'string' ? designSpec.date.toUpperCase() : String(designSpec.date).toUpperCase();
+          const dateFontSize = fontSize * 0.2;
+          ctx.font = `700 ${dateFontSize}px ${RECIPE_LABS_BRAND.fonts.tech}, sans-serif`;
+          const dateWidth = ctx.measureText(dateText).width;
+
+          // Date badge background
+          const badgeX = width / 2 - dateWidth / 2 - 20;
+          const badgeY = textY + fontSize * 1.1;
+          ctx.fillStyle = `rgba(245, 213, 71, 0.15)`;
+          ctx.beginPath();
+          ctx.roundRect(badgeX, badgeY - dateFontSize * 0.6, dateWidth + 40, dateFontSize * 1.8, 25);
+          ctx.fill();
+          ctx.strokeStyle = brand.lemon;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          // Date text
+          ctx.fillStyle = brand.lemon;
+          ctx.fillText(dateText, width / 2, badgeY + dateFontSize * 0.3);
+        }
+
+        // === BOTTOM SECTION: URL + Spectrum Bar ===
+        // URL badge
+        const urlText = 'RecipeLabs.ai';
+        const urlFontSize = width * 0.028;
+        ctx.font = `700 ${urlFontSize}px ${RECIPE_LABS_BRAND.fonts.body}, sans-serif`;
+        const urlWidth = ctx.measureText(urlText).width;
+
+        const urlBadgeY = height - padding - 30;
+        ctx.fillStyle = `rgba(15, 20, 16, 0.8)`;
+        ctx.beginPath();
+        ctx.roundRect(width / 2 - urlWidth / 2 - 25, urlBadgeY - urlFontSize * 0.7, urlWidth + 50, urlFontSize * 1.8, 8);
+        ctx.fill();
+
+        ctx.fillStyle = brand.lemon;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(urlText, width / 2, urlBadgeY + urlFontSize * 0.2);
+
+        // Brand spectrum bar at very bottom
+        drawSpectrumBar(ctx, height - 4, width, 4);
+
+        // Top spectrum bar (thin accent)
+        drawSpectrumBar(ctx, 0, width, 3);
+
         // Convert to base64
         resolve(canvas.toDataURL('image/png'));
       };
-      
+
       sourceImg.onerror = () => {
         reject(new Error('Failed to load source image'));
       };
-      
+
       sourceImg.src = sourceImageBase64;
     } catch (error: any) {
       reject(new Error(error.message || 'STUDIO_OFFLINE'));
