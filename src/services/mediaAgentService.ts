@@ -636,7 +636,7 @@ function generateImageWithCanvas(
 
         // === BOTTOM SECTION: URL + Spectrum Bar ===
         // URL badge
-        const urlText = 'RecipeLabs.ai';
+        const urlText = 'madebyrecipe.com';
         const urlFontSize = width * 0.028;
         ctx.font = `700 ${urlFontSize}px ${RECIPE_LABS_BRAND.fonts.body}, sans-serif`;
         const urlWidth = ctx.measureText(urlText).width;

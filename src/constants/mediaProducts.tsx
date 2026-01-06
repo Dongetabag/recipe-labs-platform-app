@@ -18,7 +18,7 @@ export const MEDIA_PRODUCTS: MediaProductType[] = [
     icon: '📱',
     aspectRatio: '9:16',
     description: 'Instagram Story format.',
-    basePrompt: 'TRANSFORM into a high-impact Recipe Labs STORY. Composition: Vertical 9:16. FRAME the subject. Highlight the subject clearly. "Recipe Labs" branding should be header-style or sidebar-style. NO DATE. Include "RecipeLabs.ai" at the footer.'
+    basePrompt: 'TRANSFORM into a high-impact Recipe Labs STORY. Composition: Vertical 9:16. FRAME the subject. Highlight the subject clearly. "Recipe Labs" branding should be header-style or sidebar-style. NO DATE. Include "madebyrecipe.com" at the footer.'
   },
   {
     id: 'reel',
@@ -26,7 +26,7 @@ export const MEDIA_PRODUCTS: MediaProductType[] = [
     icon: '🎬',
     aspectRatio: '9:16',
     description: 'Reel or TikTok frame.',
-    basePrompt: 'DESIGN a Recipe Labs REEL COVER. Highlight the subject center-stage. "Recipe Labs" as a bold backdrop or header. Ensure clear visibility of the source image. NO DATE. Integrate "RecipeLabs.ai" cleanly.'
+    basePrompt: 'DESIGN a Recipe Labs REEL COVER. Highlight the subject center-stage. "Recipe Labs" as a bold backdrop or header. Ensure clear visibility of the source image. NO DATE. Integrate "madebyrecipe.com" cleanly.'
   },
   {
     id: 'post',
